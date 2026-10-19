@@ -10,6 +10,7 @@
   const Art = window.ParrotArt;
   const Sound = window.ParrotSound;
   const Store = window.ParrotStore;
+  const Bird3D = window.ParrotBird3D;
 
   const app = document.getElementById('app');
   const $ = (id) => document.getElementById(id);
@@ -44,6 +45,10 @@
   let animTimer = null;
   let noteTimer = null;
   let artKey = '';
+  let view = null;  // the 3D bird, when WebGL is available and 3D is switched on
+  const VIEW_KEY = 'pocket-parrot-view';
+  let prefer3d = true;
+  try { prefer3d = localStorage.getItem(VIEW_KEY) !== '2d'; } catch (e) { /* storage blocked */ }
   const levelQueue = [];
   let returnFocus = null;
   const shown = {};  // last values written to the DOM, to skip redundant writes
@@ -70,6 +75,13 @@
       leaf(-14, -6, 52, 1.05) + leaf(-20, 30, 24, 0.9, 'bd-leaf--b') + leaf(26, -18, 80, 0.8, 'bd-leaf--b') +
       leaf(414, -4, 128, 1.05) + leaf(420, 46, 160, 0.85, 'bd-leaf--b') + leaf(378, -20, 104, 0.7, 'bd-leaf--b') +
       '</svg>';
+  }
+
+  // Puts the 3D bird on a stage, or leaves the 2D artwork in place.
+  function mountView(stage) {
+    if (view) view.dispose();
+    view = prefer3d && Bird3D && stage ? Bird3D.mount(stage) : null;
+    if (stage) stage.classList.toggle('is-3d', !!view);
   }
 
   // ---- Build your bird ------------------------------------------------------
@@ -160,6 +172,7 @@
         </section>
       </div>`;
 
+    mountView(document.querySelector('.stage--preview'));
     const form = $('create-form');
     form.addEventListener('input', onCreateInput);
     form.addEventListener('change', onCreateInput);
@@ -214,7 +227,8 @@
     const bird = draftBird();
     const sp = byId(D.SPECIES, bird.species);
     const persona = byId(D.PERSONALITIES, bird.personality);
-    $('preview-art').innerHTML = Art.render(bird, {});
+    if (view) view.setBird(bird, {});
+    else $('preview-art').innerHTML = Art.render(bird, {});
     setText($('preview-caption'), `${bird.name} · ${sp.name} · ${persona.name}`);
     setText($('adopt-btn'), `Bring ${bird.name} home`);
     for (const dot of document.querySelectorAll('[data-part-dot]')) {
@@ -257,6 +271,7 @@
         <header class="topbar">
           <p class="wordmark wordmark--sm">Pocket <span>Parrot</span></p>
           <div class="top-actions">
+            <button type="button" class="btn btn--quiet btn--sm" id="view-btn" hidden></button>
             <button type="button" class="btn btn--quiet btn--sm" id="sound-btn"></button>
             <button type="button" class="btn btn--quiet btn--sm" id="reset-btn">New bird</button>
           </div>
@@ -323,6 +338,15 @@
         </div>
       </div>`;
 
+    $('view-btn').addEventListener('click', () => {
+      prefer3d = !prefer3d;
+      try { localStorage.setItem(VIEW_KEY, prefer3d ? '3d' : '2d'); } catch (e) { /* storage blocked */ }
+      mountView($('stage'));
+      artKey = '';
+      $('bird-art').innerHTML = '';
+      updateStage(Date.now());
+      updateViewBtn();
+    });
     $('sound-btn').addEventListener('click', () => {
       Sound.setEnabled(!Sound.isEnabled());
       updateSoundBtn();
@@ -362,6 +386,8 @@
       if (ev.target.id === 'teach-input') teachText = ev.target.value;
     });
 
+    mountView($('stage'));
+    updateViewBtn();
     updateSoundBtn();
     selectTab(tab);
     renderLog();
@@ -465,7 +491,10 @@
 
   function updateStage(now) {
     const key = JSON.stringify([state.bird, state.wearing]);
-    if (key !== artKey) {
+    if (view) {
+      view.setBird(state.bird, state.wearing);
+      view.setSleeping(state.sleeping);
+    } else if (key !== artKey) {
       artKey = key;
       $('bird-art').innerHTML = Art.render(state.bird, state.wearing);
     }
@@ -494,6 +523,14 @@
     }
     const chance = $('train-chance');
     if (chance) setText(chance, Math.round(E.trainChance(state) * 100) + '%');
+  }
+
+  function updateViewBtn() {
+    const b = $('view-btn');
+    // Only offer the switch when this device can show 3D at all.
+    b.hidden = !Bird3D || (!view && prefer3d);
+    b.setAttribute('aria-pressed', String(!!view));
+    setText(b, view ? '3D on' : '3D off');
   }
 
   function updateSoundBtn() {
@@ -776,6 +813,7 @@
     stage.removeAttribute('data-anim');
     void stage.offsetWidth;  // restart the CSS animation
     stage.dataset.anim = name;
+    if (view) view.play(name);
     clearTimeout(animTimer);
     animTimer = setTimeout(() => stage.removeAttribute('data-anim'), ANIM_MS[name] || 1200);
   }

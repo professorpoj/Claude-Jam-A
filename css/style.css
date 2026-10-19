@@ -310,6 +310,19 @@ p { margin: 0; }
   z-index: 2;
 }
 .bird-art, .bird-art svg { width: 100%; height: 100%; display: block; overflow: visible; }
+/* 3D view: the canvas covers the stage so the bird can fly around it. */
+.bird3d {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  touch-action: pan-y;
+  cursor: grab;
+}
+.bird3d:active { cursor: grabbing; }
+.stage.is-3d .bird { z-index: 3; pointer-events: none; }
+.stage.is-3d .bird-art { display: none; }
 .stage.is-sleeping .bird-art { filter: brightness(0.82) saturate(0.85); }
 .perch { stroke: var(--perch); }
 .perch-grain { stroke: var(--perch-2); }

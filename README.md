@@ -51,7 +51,9 @@ index.html          Page shell: loads the fonts, the stylesheet and the scripts
 css/style.css       Theme (light and dark), layout and every parrot animation
 js/data.js          All tunable content: species, foods, activities, tricks, unlocks
 js/engine.js        Game rules: stat drain, XP, levels, training, saves. No DOM code
-js/art.js           Draws the parrot as SVG from the player's color choices
+js/art.js           Draws the 2D parrot as SVG (used when 3D is off or unsupported)
+js/bird3d.js        The 3D parrot: a stand-in model, its animations and drag-to-turn
+vendor/three.min.js Three.js r147 (MIT license), the 3D library, bundled so it works offline
 js/sound.js         Chirps and jingles synthesized with the Web Audio API
 js/store.js         Saving to localStorage (and to a Claude account when published there)
 js/ui.js            Screens, game loop, input handling and visual feedback
@@ -64,6 +66,14 @@ A few design choices make it easy to extend:
 - **The engine is pure logic.** `engine.js` never touches the page, so it runs under Node for tests. The UI calls functions like `E.feed(state, 'apple', now)` and gets back a result describing what happened (stat changes, XP, level-ups, which animation to play). It then turns that result into visuals.
 - **The parrot is one SVG with named parts.** The head, wing, lower beak and eyes are separate groups, so CSS animations can make the bird peck, wave, dance, spin, play dead or fly a loop. Accessories are extra shapes layered on top.
 - **Time is computed, not simulated.** Each tick advances stats by the time elapsed since the last tick. That makes offline progress and throttled background tabs work without special cases.
+
+## 3D view
+
+The bird is drawn in 3D with [Three.js](https://threejs.org) when the device supports WebGL, which almost every phone does. Drag sideways on the bird to turn it. The **3D on/off** button in the top bar switches back to the 2D artwork.
+
+The current 3D bird is a stand-in built from simple shapes. It is put together like a rigged model: the body, neck, head, wings, tail, beak, jaw, eyes and feet each hang off a named pivot, and every animation (pecking, hopping, waving, dancing, playing dead, flying a loop and so on) moves only those pivots. A realistic model can replace it later without changing the game.
+
+**Adding a real model.** Look for a parrot in **.glb** format (or .gltf) that is rigged with a skeleton, ideally with built-in animations such as idle, fly and walk, under a license that allows this use. Add it to a `models/` folder through GitHub (*Add file → Upload files*, on the game's branch). It can then be connected to the animation names in `js/bird3d.js`.
 
 ## Saving
 

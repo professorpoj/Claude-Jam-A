@@ -1,16 +1,20 @@
 /*
- * Parrot Pal sound effects, synthesized with the Web Audio API so there are
+ * Pocket Parrot sound effects, synthesized with the Web Audio API so there are
  * no audio files to load. Browsers only allow sound after the player has
  * interacted with the page, so nothing plays until the first click or key.
  */
 (function (root) {
   'use strict';
 
-  const PREF_KEY = 'parrot-pal-sound';
+  const PREF_KEY = 'pocket-parrot-sound';
+  const LEGACY_PREF_KEY = 'parrot-pal-sound';  // setting saved before the game was renamed
   let ctx = null;
   let unlocked = false;
   let enabled = true;
-  try { enabled = root.localStorage.getItem(PREF_KEY) !== 'off'; } catch (e) { /* storage blocked */ }
+  try {
+    const pref = root.localStorage.getItem(PREF_KEY) ?? root.localStorage.getItem(LEGACY_PREF_KEY);
+    enabled = pref !== 'off';
+  } catch (e) { /* storage blocked */ }
 
   function audio() {
     if (!ctx) {
@@ -66,7 +70,10 @@
     isEnabled: () => enabled,
     setEnabled(value) {
       enabled = !!value;
-      try { root.localStorage.setItem(PREF_KEY, enabled ? 'on' : 'off'); } catch (e) { /* storage blocked */ }
+      try {
+        root.localStorage.setItem(PREF_KEY, enabled ? 'on' : 'off');
+        root.localStorage.removeItem(LEGACY_PREF_KEY);
+      } catch (e) { /* storage blocked */ }
     },
   };
 })(window);

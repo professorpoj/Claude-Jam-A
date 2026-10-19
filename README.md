@@ -1,4 +1,4 @@
-# Parrot Pal
+# Pocket Parrot
 
 A browser-based virtual parrot. Build your own bird, keep its stats up with food, play and training, and level it up to unlock new tricks, abilities and accessories.
 

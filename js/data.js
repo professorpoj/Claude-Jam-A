@@ -1,5 +1,5 @@
 /*
- * Parrot Pal game data: stats, looks, foods, activities, tricks and unlocks.
+ * Pocket Parrot game data: stats, looks, foods, activities, tricks and unlocks.
  * Everything tunable lives here so the rules in engine.js stay generic.
  */
 (function (root) {

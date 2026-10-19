@@ -1,5 +1,5 @@
 /*
- * Parrot Pal artwork. Builds the parrot as an SVG string from the bird's
+ * Pocket Parrot artwork. Builds the parrot as an SVG string from the bird's
  * colors and accessories. Parts live in named groups (.p-head, .p-wing,
  * .p-beak-low, ...) so CSS can animate them independently.
  * Coordinates use a 240 x 260 viewBox with the bird facing right.

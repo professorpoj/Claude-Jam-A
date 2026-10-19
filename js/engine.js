@@ -1,5 +1,5 @@
 /*
- * Parrot Pal rules engine. Pure game logic with no DOM access, so it runs in
+ * Pocket Parrot rules engine. Pure game logic with no DOM access, so it runs in
  * the browser and under Node for tests. Functions mutate the state object
  * they are given and return a result describing what happened, which the UI
  * turns into animations, sounds and messages.

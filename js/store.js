@@ -1,5 +1,5 @@
 /*
- * Parrot Pal saving. Always keeps a copy in this browser's localStorage.
+ * Pocket Parrot saving. Always keeps a copy in this browser's localStorage.
  * When the page runs as a published Claude artifact, it also saves to the
  * viewer's private space in the artifact's database, so the bird follows
  * them to other devices. Anywhere else (a local file, GitHub Pages) the
@@ -9,7 +9,8 @@
   'use strict';
 
   const E = root.ParrotEngine;
-  const KEY = 'parrot-pal-save-v1';
+  const KEY = 'pocket-parrot-save-v1';
+  const LEGACY_KEY = 'parrot-pal-save-v1';  // saves from before the game was renamed
   const CLOUD_DELAY_MS = 3000;
 
   let ref = null;
@@ -57,7 +58,7 @@
 
     loadLocal() {
       try {
-        const raw = root.localStorage.getItem(KEY);
+        const raw = root.localStorage.getItem(KEY) || root.localStorage.getItem(LEGACY_KEY);
         return raw ? E.normalizeState(JSON.parse(raw), Date.now()) : null;
       } catch (e) {
         return null;
@@ -67,6 +68,7 @@
     saveLocal(state) {
       try {
         root.localStorage.setItem(KEY, JSON.stringify(state));
+        root.localStorage.removeItem(LEGACY_KEY);
         return true;
       } catch (e) {
         return false;
@@ -112,7 +114,10 @@
     },
 
     async clear() {
-      try { root.localStorage.removeItem(KEY); } catch (e) { /* storage blocked */ }
+      try {
+        root.localStorage.removeItem(KEY);
+        root.localStorage.removeItem(LEGACY_KEY);
+      } catch (e) { /* storage blocked */ }
       clearTimeout(timer);
       timer = null;
       pending = null;

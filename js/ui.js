@@ -1,5 +1,5 @@
 /*
- * Parrot Pal interface: the build-your-bird screen, the care screen, the
+ * Pocket Parrot interface: the build-your-bird screen, the care screen, the
  * game loop and all the feedback (animations, particles, speech, sounds).
  */
 (function () {
@@ -92,7 +92,7 @@
     app.innerHTML = `
       <div class="shell">
         <header class="masthead">
-          <p class="wordmark">Parrot <span>Pal</span></p>
+          <p class="wordmark">Pocket <span>Parrot</span></p>
           <p class="masthead-note">A virtual parrot that grows with you</p>
         </header>
         <section class="create" aria-labelledby="create-title">
@@ -255,7 +255,7 @@
     app.innerHTML = `
       <div class="shell">
         <header class="topbar">
-          <p class="wordmark wordmark--sm">Parrot <span>Pal</span></p>
+          <p class="wordmark wordmark--sm">Pocket <span>Parrot</span></p>
           <div class="top-actions">
             <button type="button" class="btn btn--quiet btn--sm" id="sound-btn"></button>
             <button type="button" class="btn btn--quiet btn--sm" id="reset-btn">New bird</button>
